@@ -22,7 +22,6 @@
 
 #include <istream>
 
-#include <ndn-cxx/util/exception.hpp>
 #include <ndn-cxx/util/logger.hpp>
 
 namespace repo {

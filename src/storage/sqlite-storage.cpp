@@ -44,7 +44,7 @@ SqliteStorage::SqliteStorage(const std::string& dbPath)
     boost::filesystem::file_status fsPathStatus = boost::filesystem::status(fsPath);
     if (!boost::filesystem::is_directory(fsPathStatus)) {
       if (!boost::filesystem::create_directory(boost::filesystem::path(fsPath))) {
-        NDN_THROW(Error("Folder '" + dbPath + "' does not exists and cannot be created"));
+        BOOST_THROW_EXCEPTION(Error("Folder '" + dbPath + "' does not exists and cannot be created"));
       }
     }
 
@@ -75,7 +75,7 @@ SqliteStorage::initializeRepo()
   }
   else {
     NDN_LOG_DEBUG("Database file open failure rc:" << rc);
-    NDN_THROW(Error("Database file open failure"));
+    BOOST_THROW_EXCEPTION(Error("Database file open failure"));
   }
 
   // SQLite continues without syncing as soon as it has handed data off to the operating system
@@ -112,13 +112,13 @@ SqliteStorage::insert(const Data& data)
     rc = stmt.step();
     if (rc == SQLITE_CONSTRAINT) {
       NDN_LOG_DEBUG("Insert failed");
-      NDN_THROW(Error("Insert failed"));
+      BOOST_THROW_EXCEPTION(Error("Insert failed"));
     }
     sqlite3_reset(stmt);
     id = sqlite3_last_insert_rowid(m_db);
   }
   else {
-    NDN_THROW(Error("Some error with insert"));
+    BOOST_THROW_EXCEPTION(Error("Some error with insert"));
   }
   return id;
 }
@@ -136,7 +136,7 @@ SqliteStorage::erase(const Name& name)
     int rc = stmt.step();
     if (rc != SQLITE_DONE && rc != SQLITE_ROW) {
       NDN_LOG_DEBUG("Node delete error rc:" << rc);
-      NDN_THROW(Error("Node delete error"));
+      BOOST_THROW_EXCEPTION(Error("Node delete error"));
     }
     if (sqlite3_changes(m_db) != 1) {
       return false;
@@ -144,7 +144,7 @@ SqliteStorage::erase(const Name& name)
   }
   else {
     NDN_LOG_DEBUG("delete bind error");
-    NDN_THROW(Error("delete bind error"));
+    BOOST_THROW_EXCEPTION(Error("delete bind error"));
   }
   return true;
 }
@@ -218,12 +218,12 @@ SqliteStorage::find(const Name& name, bool exactMatch)
     }
     else {
       NDN_LOG_DEBUG("Database query failure rc:" << rc);
-      NDN_THROW(Error("Database query failure"));
+      BOOST_THROW_EXCEPTION(Error("Database query failure"));
     }
   }
   else {
     NDN_LOG_DEBUG("select bind error");
-    NDN_THROW(Error("select bind error"));
+    BOOST_THROW_EXCEPTION(Error("select bind error"));
   }
   return nullptr;
 }
@@ -250,7 +250,7 @@ SqliteStorage::forEach(const std::function<void(const Name&)>& f)
       break;
     }
     else {
-      NDN_THROW(Error("Database query failure (code: " + ndn::to_string(rc)));
+      BOOST_THROW_EXCEPTION(Error("Database query failure (code: " + ndn::to_string(rc)));
     }
   }
 }
@@ -263,7 +263,7 @@ SqliteStorage::size()
   int rc = stmt.step();
   if (rc != SQLITE_ROW) {
     NDN_LOG_DEBUG("Database query failure rc:" << rc);
-    NDN_THROW(Error("Database query failure"));
+    BOOST_THROW_EXCEPTION(Error("Database query failure"));
   }
 
   uint64_t nData = stmt.getInt(0);
